@@ -1,0 +1,1 @@
+Latent_Transformer_Diffusion_v3_Time_Hours: 0.6835862344503403

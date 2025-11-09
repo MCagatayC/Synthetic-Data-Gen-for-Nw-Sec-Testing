@@ -1,0 +1,3 @@
+VAE_v3_Training_Time_Hours: 0.412761271264818
+VAE_v3_Input_Dim: 82
+Latent_Transformer_Diffusion_v3_Time_Hours: 0.679170600440767

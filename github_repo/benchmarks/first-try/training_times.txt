@@ -1,0 +1,2 @@
+VAE_Training_Time_Hours: 0.22610326005352868
+Latent_Diffusion_Training_Time_Hours: 0.023081758949491712
