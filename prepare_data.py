@@ -13,12 +13,12 @@ from torch.utils.data import DataLoader, TensorDataset
 sns.set(style="whitegrid")
 plt.rcParams["figure.figsize"] = (10, 5)
 
-DATA_DIR = 'data'
+DATA_DIR = '/media/dolly/1TB/tez-projesi/data'
 CSV_NAME = os.path.join(DATA_DIR, 'Midterm_53_group.csv') 
 
 def load_and_scale_data(): # Artık 'numeric_only' parametresi yok
     if not os.path.exists(CSV_NAME):
-        print(f"HATA: {CSV_NAME} dosyası bulunamadı. Lütfen dataset'i 'data/' klasörüne kopyalayın.")
+        print(f"HATA: {CSV_NAME} dosyası bulunamadı. Lütfen dataset'i '/media/dolly/1TB/tez-projesi/data/' klasörüne kopyalayın.")
         return None, None, None, None
         
     df = pd.read_csv(CSV_NAME)

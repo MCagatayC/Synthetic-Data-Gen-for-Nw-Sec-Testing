@@ -3,11 +3,6 @@ import os
 import pandas as pd
 from prepare_data import load_and_scale_data, save_scaler, torch, nn, DataLoader, TensorDataset
 from torch.optim.lr_scheduler import ReduceLROnPlateau 
-import numpy as np 
-
-# --- NAT-VAE Ayarları (v6) ---
-NAT_NOISE = 0.005        # Latent uzaya eklenecek düşük, sabit gürültü seviyesi
-# -------------------------
 
 # --- VAE Mimarisi (v3 - Aynı) ---
 class VAE_v3(nn.Module):
@@ -40,24 +35,27 @@ class VAE_v3(nn.Module):
         mu, logvar = self.encode(x); z = self.reparameterize(mu, logvar); return self.decode(z), mu, logvar
 # --- Bitiş VAE v3 Mimarisi ---
 
+# YENİ: Beta-VAE Kayıp Fonksiyonu
 def vae_loss(recon_x, x, mu, logvar, beta=0.1):
     recon_loss = nn.functional.mse_loss(recon_x, x, reduction='sum')
     kld = -0.5 * torch.sum(1 + logvar - mu.pow(2) - logvar.exp())
+    
+    # Beta çarpanı ile KLD'nin etkisini azalt
     return recon_loss + beta * kld
 
 def main():
-    print("--- Adım 1 (v6 NAT-VAE): Gürültü Destekli Eğitim Başlatılıyor ---")
+    print("--- Adım 1 (v4 Mimarisi / Beta-VAE): VAE Eğitimi Başlatılıyor ---")
     
     df_orig, data_scaled, scaler, column_names = load_and_scale_data()
     if df_orig is None: return
     
     input_dim = data_scaled.shape[1]
     latent_dim = 32
-    epochs = 150
+    epochs = 150 # YENİ: Epoch artırıldı
     batch_size = 128
-    beta_value = 0.1 
+    beta_value = 0.1 # YENİ: Beta değeri (KLD'nin etkisini %10'a düşür)
 
-    print(f"Input Dim: {input_dim}, Latent Dim: {latent_dim}, Beta: {beta_value}, NAT Noise: {NAT_NOISE}")
+    print(f"Yeni Input Dim: {input_dim}, Latent Dim: {latent_dim}, Beta: {beta_value}")
 
     tensor_data = torch.tensor(data_scaled, dtype=torch.float32)
     loader = DataLoader(TensorDataset(tensor_data), batch_size=batch_size, shuffle=True)
@@ -71,18 +69,12 @@ def main():
     for epoch in range(epochs):
         total_loss = 0
         for batch, in loader:
-            # --- NAT (Gürültü Destekli Eğitim) Eklentisi ---
-            # Giriş verisine gürültü ekle (Tekrarlanabilir olması için rastgele değil, dağılımdan örneklenmiş)
-            noise_vector = torch.randn_like(batch) * NAT_NOISE
-            noisy_batch = batch + noise_vector
-            # ---------------------------------------------
+            recon_batch, mu, logvar = vae(batch)
             
-            recon_batch, mu, logvar = vae(noisy_batch) # Gürültülü veriyi modele besle
+            # YENİ: Beta değeri kayıp fonksiyonuna iletildi
             loss = vae_loss(recon_batch, batch, mu, logvar, beta=beta_value)
             
-            optimizer.zero_grad()
-            loss.backward()
-            optimizer.step()
+            optimizer.zero_grad(); loss.backward(); optimizer.step()
             total_loss += loss.item()
         
         avg_loss = total_loss / len(loader.dataset)
@@ -93,21 +85,20 @@ def main():
 
     end_time = time.time()
     training_time = (end_time - start_time) / 3600.0
-    print(f"NAT-VAE (v6) eğitimi tamamlandı. Toplam süre: {training_time:.4f} saat.")
+    print(f"VAE (v4 - Beta) eğitimi tamamlandı. Toplam süre: {training_time:.4f} saat.")
     
-    os.makedirs('/media/dolly/1TB/tez-projesi/github_repo/models', exist_ok=True)
-    torch.save(vae.state_dict(), '/media/dolly/1TB/tez-projesi/github_repo/models/vaev6.pth')
-    save_scaler(scaler, '/media/dolly/1TB/tez-projesi/github_repo/models/scalerv6pkl')
-    pd.Series(column_names).to_csv('/media/dolly/1TB/tez-projesi/github_repo/models/column_names.csv', index=False, header=False)
+    os.makedirs('github_repo/models', exist_ok=True)
+    torch.save(vae.state_dict(), 'github_repo/models/vae.pth')
+    save_scaler(scaler, 'github_repo/models/scaler.pkl')
+    pd.Series(column_names).to_csv('github_repo/models/column_names.csv', index=False, header=False)
     
-    print("VAE (v6) modeli, scaler ve sütun isimleri '/media/dolly/1TB/tez-projesi/github_repo/models/' klasörüne kaydedildi.")
+    print("VAE (v4) modeli, scaler ve sütun isimleri 'github_repo/models/' klasörüne kaydedildi.")
     
-    os.makedirs('/media/dolly/1TB/tez-projesi/github_repo/benchmarks', exist_ok=True)
-    with open('/media/dolly/1TB/tez-projesi/github_repo/benchmarks/training_times.txt', 'w') as f:
-        f.write(f"VAE_v6_Training_Time_Hours: {training_time}\n")
-        f.write(f"VAE_v6_Input_Dim: {input_dim}\n")
-        f.write(f"VAE_v6_Beta: {beta_value}\n")
-        f.write(f"VAE_v6_NAT_Noise: {NAT_NOISE}\n")
+    os.makedirs('github_repo/benchmarks', exist_ok=True)
+    with open('github_repo/benchmarks/training_times.txt', 'w') as f:
+        f.write(f"VAE_v4_Training_Time_Hours: {training_time}\n")
+        f.write(f"VAE_v4_Input_Dim: {input_dim}\n")
+        f.write(f"VAE_v4_Beta: {beta_value}\n")
 
 if __name__ == "__main__":
     main()

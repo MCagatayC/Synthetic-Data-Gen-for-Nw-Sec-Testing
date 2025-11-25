@@ -1,1 +1,5 @@
-Latent_Transformer_Diffusion_v3_Time_Hours: 0.6835862344503403
+VAE_v6_Training_Time_Hours: 0.6781663350926506
+VAE_v6_Input_Dim: 82
+VAE_v6_Beta: 0.1
+VAE_v6_NAT_Noise: 0.005
+Latent_Transformer_Diffusion_v6_Time_Hours: 0.6695685957537757
