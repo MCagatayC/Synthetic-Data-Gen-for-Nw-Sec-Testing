@@ -28,9 +28,9 @@ class TransformerDenoiser(nn.Module):
 # --- Bitiş Transformer Mimarisi ---
 
 def main():
-    print("--- Adım 3 (v6 Verisi): Latent Transformer Difüzyon Eğitimi ---")
+    print("--- Adım 3 (v3 Verisi): Latent Transformer Difüzyon Eğitimi ---")
     
-    latent_data = np.load('/media/dolly/1TB/tez-projesi/github_repo/latent_dataset/latent_data.npy')
+    latent_data = np.load('github_repo/latent_dataset/latent_data.npy')
     data_tensor = torch.tensor(latent_data, dtype=torch.float32)
     
     latent_dim = latent_data.shape[1] # Bu 32 olmalı
@@ -66,23 +66,23 @@ def main():
 
     end_time = time.time()
     training_time = (end_time - start_time) / 3600.0
-    print(f"Latent Transformer Difüzyon (v6) eğitimi tamamlandı. Toplam süre: {training_time:.4f} saat.")
+    print(f"Latent Transformer Difüzyon (v3) eğitimi tamamlandı. Toplam süre: {training_time:.4f} saat.")
     
-    torch.save(model.state_dict(), '/media/dolly/1TB/tez-projesi/github_repo/models/latent_diffusion.pth')
-    print("Yeni Latent Difüzyon modeli '/media/dolly/1TB/tez-projesi/github_repo/models/latent_diffusion.pth' olarak kaydedildi.")
+    torch.save(model.state_dict(), 'github_repo/models/latent_diffusion.pth')
+    print("Yeni Latent Difüzyon modeli 'github_repo/models/latent_diffusion.pth' olarak kaydedildi.")
 
     # Benchmark dosyasını güncelle
     try:
-        with open('/media/dolly/1TB/tez-projesi/github_repo/benchmarks/training_times.txt', 'r') as f:
+        with open('github_repo/benchmarks/training_times.txt', 'r') as f:
             lines = f.readlines()
         # Sadece VAE süresini ve input dim'i tut
-        filtered_lines = [l for l in lines if 'VAE_v6' in l]
-        with open('/media/dolly/1TB/tez-projesi/github_repo/benchmarks/training_times.txt', 'w') as f:
+        filtered_lines = [l for l in lines if 'VAE_v3' in l]
+        with open('github_repo/benchmarks/training_times.txt', 'w') as f:
             f.writelines(filtered_lines)
-            f.write(f"Latent_Transformer_Diffusion_v6_Time_Hours: {training_time}\n")
+            f.write(f"Latent_Transformer_Diffusion_v3_Time_Hours: {training_time}\n")
     except FileNotFoundError:
-         with open('/media/dolly/1TB/tez-projesi/github_repo/benchmarks/training_times.txt', 'a') as f:
-            f.write(f"Latent_Transformer_Diffusion_v6_Time_Hours: {training_time}\n")
+         with open('github_repo/benchmarks/training_times.txt', 'a') as f:
+            f.write(f"Latent_Transformer_Diffusion_v3_Time_Hours: {training_time}\n")
 
 if __name__ == "__main__":
     main()

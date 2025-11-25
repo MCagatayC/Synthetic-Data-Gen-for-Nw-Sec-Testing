@@ -5,8 +5,8 @@ from prepare_data import (
     torch, nn, np, pd, plt, sns
 )
 
-# --- VAE Mimarisi (v6 - 01... ile aynı) ---
-class VAE_v6(nn.Module):
+# --- VAE Mimarisi (v3 - 01... ile aynı) ---
+class VAE_v3(nn.Module):
     def __init__(self, input_dim, latent_dim=32):
         super().__init__()
         self.input_dim = input_dim
@@ -34,7 +34,7 @@ class VAE_v6(nn.Module):
         return self.decoder(z)
     def forward(self, x):
         mu, logvar = self.encode(x); z = self.reparameterize(mu, logvar); return self.decode(z), mu, logvar
-# --- Bitiş VAE v6 Mimarisi ---
+# --- Bitiş VAE v3 Mimarisi ---
 
 # --- Transformer Denoiser Mimarisi (Aynı) ---
 class TransformerDenoiser(nn.Module):
@@ -57,7 +57,7 @@ class TransformerDenoiser(nn.Module):
 # --- Bitiş Transformer Mimarisi ---
 
 def main():
-    print("--- Adım 4 (v6 Mimarisi): VAE-LDM ile Veri Üretme ---")
+    print("--- Adım 4 (v3 Mimarisi): VAE-LDM ile Veri Üretme ---")
     
     # YENİ: 4 değer döndürüyor
     df_real, _, scaler, column_names = load_and_scale_data() 
@@ -69,14 +69,14 @@ def main():
     num_samples = 5000 
     
     latent_model = TransformerDenoiser(data_dim=latent_dim, timesteps=timesteps)
-    latent_model.load_state_dict(torch.load('/media/dolly/1TB/tez-projesi/github_repo/models/latent_diffusion.pth'))
+    latent_model.load_state_dict(torch.load('github_repo/models/latent_diffusion.pth'))
     latent_model.eval()
     print("Latent *Transformer* Difüzyon modeli yüklendi.")
 
-    vae = VAE_v6(input_dim, latent_dim) # YENİ: VAE_v6
-    vae.load_state_dict(torch.load('/media/dolly/1TB/tez-projesi/github_repo/models/vaev6.pth'))
+    vae = VAE_v3(input_dim, latent_dim) # YENİ: VAE_v3
+    vae.load_state_dict(torch.load('github_repo/models/vae.pth'))
     vae.eval()
-    print("VAE (v6) modeli yüklendi.")
+    print("VAE (v3) modeli yüklendi.")
     
     print(f"{num_samples} adet gizli alan vektörü üretiliyor (Sampling)...")
     beta = torch.linspace(1e-4, 0.02, timesteps)
@@ -123,17 +123,17 @@ def main():
 
     csv_path = 'github_repo/synthetic_data/synthetic_traffic_VAE-LDM.csv'
     df_synthetic_final.to_csv(csv_path, index=False)
-    print(f"Üretilen sentetik veri (v6) şuraya kaydedildi: {csv_path}")
+    print(f"Üretilen sentetik veri (v3) şuraya kaydedildi: {csv_path}")
 
-    plot_path = 'github_repo/benchmarks/VAE-LDM_vs_Real-v6.png'
+    plot_path = 'github_repo/benchmarks/VAE-LDM_vs_Real.png'
     plt.figure()
     
     # Grafik için ORİJİNAL sayısal sütunlardan birini kullanalım
     feature_to_plot = numeric_cols[0] # 'Time' veya 'Length' olmalı
     
-    sns.kdeplot(df_real[feature_to_plot], label='Real Data', fill=True)
-    sns.kdeplot(df_synthetic_final[feature_to_plot], label='VAE-LDM (v6 Architecture)', fill=True)
-    plt.title(f"Hybrid VAE-LDM (v6) vs Real Data ({feature_to_plot} Distribution)")
+    sns.kdeplot(df_real[feature_to_plot], label='Gerçek Veri', fill=True)
+    sns.kdeplot(df_synthetic_final[feature_to_plot], label='VAE-LDM (v3 Mimarisi)', fill=True)
+    plt.title(f"Hibrit VAE-LDM (v3) vs Gerçek Veri ({feature_to_plot} Dağılımı)")
     plt.legend()
     plt.savefig(plot_path)
     print(f"Karşılaştırma grafiği şuraya kaydedildi: {plot_path}")
