@@ -2,3 +2,5 @@
 *.npy filter=lfs diff=lfs merge=lfs -text
 *.pth filter=lfs diff=lfs merge=lfs -text
 *.pkl filter=lfs diff=lfs merge=lfs -text
+phase2/old/*.zip !text !filter !merge !diff
+*.zip !text !filter !merge !diff
