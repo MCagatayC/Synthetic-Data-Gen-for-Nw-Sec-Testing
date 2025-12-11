@@ -1,0 +1,14 @@
+{
+    "avg_ks_score": 0.7211833333333332,
+    "avg_kl_divergence": NaN,
+    "tstr_real": {
+        "f1": 1.0,
+        "precision": 1.0,
+        "recall": 1.0
+    },
+    "tstr_syn": {
+        "f1": 1.0,
+        "precision": 1.0,
+        "recall": 1.0
+    }
+}
